@@ -33,10 +33,14 @@ add_library(color_to_label src/color_to_label.cpp)
 add_library(file_storage src/file_storage.cpp)
 target_link_libraries(file_storage probimage color_to_label ${OpenCV_LIBS})
 
-add_executable(example_inference  src/example_inference.cpp)
-target_link_libraries(example_inference densecrf file_storage)
+# add_executable(example_inference src/example_inference.cpp)
+# target_link_libraries(example_inference densecrf file_storage)
 
-add_executable(inference_lidar  src/inference_lidar.cpp)
+add_executable(inference_lidar src/inference_lidar.cpp)
 target_link_libraries(inference_lidar densecrf file_storage)
+
+set (CMAKE_BUILD_TYPE Debug)
+
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-ignored-attributes -Wno-deprecated-declarations -Wno-write-strings")
 
 # add_subdirectory (alpha)

@@ -194,10 +194,6 @@ std::string get_output_path(const std::string & path_to_results_folder, const st
     return output_path;
 }
 
-std::vector<double> load_lidar(const std::string & path_to_lidar) {
-    return {0, 0, 0, 1, 1, 1, 10, 10, 10};
-}
-
 unsigned char * load_image( const std::string & path_to_image, img_size & size){
     cv::Mat img = cv::imread(path_to_image);
 
