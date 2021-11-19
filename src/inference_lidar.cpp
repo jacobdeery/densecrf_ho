@@ -104,7 +104,7 @@ std::vector<int> lidar_inference(std::string method,
         discretized_energy = crf.assignment_energy_true(crf.currentMap(Q));
     }
 
-    std::vector<int> labeling(points.size());
+    std::vector<int> labeling(points.size() / 3);
     for(int i = 0; i < Q.cols(); ++i) {
         int lbl;
         Q.col(i).maxCoeff( &lbl);
@@ -135,5 +135,9 @@ int main(int argc, char *argv[])
 
     const auto predictions = lidar_inference(method, points, bil_potts, lp_params);
 
-    std::cout << "predictions: " << std::endl << predictions << std::endl;;
+    std::cout << "predictions: " << std::endl;
+    for (const auto& pred : predictions) {
+        std::cout << pred << " ";
+    }
+    std::cout << std::endl;
 }
