@@ -1,16 +1,7 @@
-#include <chrono>
-#include <ctime>
-#include <fstream>
 #include <vector>
 #include <string>
-#include "file_storage.hpp"
 #include "densecrf.h"
 
-
-struct sp_params {
-    float const_1;
-    float norm_1;
-};
 
 std::vector<double> load_lidar() {
     return {
@@ -69,23 +60,14 @@ MatrixXf compute_unaries(const MatrixXf& probabilities) {
     return unaries;
 }
 
-void lidar_inference(std::string method,
-                     std::string path_to_results,
-                     std::string path_to_image,
-                     std::string path_to_unaries,
-                     float spc_std,
-                     float spc_potts,
-                     float bil_spcstd,
-                     float bil_colstd,
+std::vector<int> lidar_inference(std::string method,
+                     const std::vector<double>& points,
                      float bil_potts,
-                     LP_inf_params & lp_params,
-                     sp_params params)
+                     LP_inf_params & lp_params)
 {
     MatrixXf Q;
 
     const int num_classes = 2;
-
-    std::vector<double> points = load_lidar();
 
     MatrixXf probabilities = get_probabilities(points);
     MatrixXf unaries = compute_unaries(probabilities);
@@ -95,7 +77,6 @@ void lidar_inference(std::string method,
     DenseCRF2D crf(points.size() / 3, 1, num_classes);
     crf.setUnaryEnergy(unaries);
     crf.addPairwiseLidar(1, points, new PottsCompatibility(bil_potts));
-    crf.addPairwiseGaussian(spc_std, spc_std, new PottsCompatibility(spc_potts));
 
     Q = crf.unary_init();
 
@@ -123,15 +104,21 @@ void lidar_inference(std::string method,
         discretized_energy = crf.assignment_energy_true(crf.currentMap(Q));
     }
 
-    std::cout << "predictions: " << std::endl << Q << std::endl;
+    std::vector<int> labeling(points.size());
+    for(int i = 0; i < Q.cols(); ++i) {
+        int lbl;
+        Q.col(i).maxCoeff( &lbl);
+        labeling[i] = lbl;
+    }
+
+    std::cout << "energy: " << discretized_energy << std::endl;
+
+    return labeling;
 }
 
 int main(int argc, char *argv[])
 {
     std::string method = "qp";
-    std::string image = "../data/img.bmp";
-    std::string unaries = "../data/img.c_unary";
-    std::string output = "../data/seg.png";
 
     //pairwise params
     float spc_std = 2.0;
@@ -140,28 +127,13 @@ int main(int argc, char *argv[])
     float bil_spcstd = 30.0;
     float bil_colstd = 8.0;
 
-    if (argc == 7)
-    {
-        spc_std = std::stof(argv[2]);
-        spc_potts = std::stof(argv[3]);
-        bil_spcstd = std::stof(argv[4]);
-        bil_colstd = std::stof(argv[5]);
-        bil_potts = std::stof(argv[6]);
-    }
-
-    //params containing higher order terms
-    sp_params params = {50, 1000};
-    if (argc == 9)
-    {
-        params = sp_params {std::stof(argv[7]),
-                            std::stof(argv[8])};
-    }
-
     // lp inference params
     LP_inf_params lp_params;
     lp_params.prox_energy_tol = lp_params.dual_gap_tol;
 
-    lidar_inference(method, output, image, unaries, spc_std, spc_potts,
-                        bil_spcstd, bil_colstd, bil_potts, lp_params, params);
+    std::vector<double> points = load_lidar();
 
+    const auto predictions = lidar_inference(method, points, bil_potts, lp_params);
+
+    std::cout << "predictions: " << std::endl << predictions << std::endl;;
 }
