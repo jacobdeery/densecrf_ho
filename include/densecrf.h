@@ -184,6 +184,8 @@ public:
 	// Add a Bilateral pairwise potential with spacial standard deviations sx, sy and color standard deviations sr,sg,sb
 	void addPairwiseBilateral( float sx, float sy, float sr, float sg, float sb, const unsigned char * im, LabelCompatibility * function=NULL, KernelType kernel_type=DIAG_KERNEL, NormalizationType normalization_type=NORMALIZE_SYMMETRIC );
 	
+	void addPairwiseLidar(float stddev, const unsigned char* points, LabelCompatibility * function=NULL, KernelType kernel_type=DIAG_KERNEL, NormalizationType normalization_type=NORMALIZE_SYMMETRIC);
+
 	//add a super pixel term, this function computes the super pixels using edison mean-shift algorithm
 	void addSuperPixel(std::string path_to_classifier,unsigned char * img, float constant, float normaliser);
 

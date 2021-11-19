@@ -189,6 +189,15 @@ void DenseCRF2D::addPairwiseBilateral ( float sx, float sy, float sr, float sg, 
     addPairwiseEnergy(feature, function, kernel_type, normalization_type);
 }
 
+void DenseCRF2D::addPairwiseLidar(float stddev, const unsigned char* pts, LabelCompatibility * function, KernelType kernel_type, NormalizationType normalization_type) {
+    MatrixXf feature(3, N_);
+    for(int i = 0; i < N_; ++i) {
+        feature(0, i) = pts[(i*N_)*3 + 0] / stddev;
+        feature(1, i) = pts[(i*N_)*3 + 1] / stddev;
+        feature(2, i) = pts[(i*N_)*3 + 2] / stddev;
+    }
+    addPairwiseEnergy(feature, function, kernel_type, normalization_type);
+}
 
 void DenseCRF2D::addSuperPixel(unsigned char * img, int spatial_radius, int range_radius, int min_region_count, float constant, float normaliser) {
 

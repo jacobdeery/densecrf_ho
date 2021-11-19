@@ -109,6 +109,7 @@ void split_string(const std::string &s, const char delim, std::vector<std::strin
 
 std::string get_output_path(const std::string & path_to_results_folder, const std::string & image_name);
 
+std::vector load_lidar(const std::string& path_to_lidar);
 unsigned char* load_image(const std::string& path_to_image, img_size & size);
 unsigned char* load_rescaled_image(const std::string& path_to_image, img_size & size, int imskip = 1);
 Matrix<short,Dynamic,1> load_labeling(const std::string & path_to_labels, const std::string & dataset_name,
